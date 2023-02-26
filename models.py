@@ -1,34 +1,23 @@
-import sqlite3
+from sqlalchemy import Column, Integer, create_engine
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import sessionmaker
 
-path = 'database.db'
+from config import DATABASE_USER, DATABASE_PASS, DATABASE_HOST, DATABASE_NAME
+
+db_string = f'postgresql+psycopg2://{DATABASE_USER}:{DATABASE_PASS}@{DATABASE_HOST}/{DATABASE_NAME}'
+
+db = create_engine(db_string)
+base = declarative_base()
 
 
-class BannedUsers:
-    def __init__(self, telegram_user_id, id=None):
-        self.telegram_user_id = telegram_user_id
-        self.id = id
+class BannedUsers(base):
+    __tablename__ = 'black_list'
 
-    def get_by_id(telegram_user_id):
-        with sqlite3.connect(path) as conn:
-            res = conn.execute(f"""
-                    Select Id From blacklist where telegram_user_id={telegram_user_id}
+    id = Column("banned_user_id", Integer, primary_key=True)
+    telegram_id = Column("telegram_id", Integer, unique=True)
 
-                """)
 
-            for item in res:
-                return item[0]
+Session = sessionmaker(db)
+session = Session()
 
-    def save(self):
-        with sqlite3.connect(path) as conn:
-            conn.execute(f"""
-                    Insert Into blacklist (telegram_user_id) Values ({self.telegram_user_id})
-                """)
-
-    def delete(self):
-        with sqlite3.connect(path) as conn:
-            conn.execute(f"""
-                    Delete from blacklist Where telegram_user_id={self.telegram_user_id}
-                """)
-
-    def __str__(self) -> str:
-        return f'{self.telegram_user_id}'
+base.metadata.create_all(db)
