@@ -32,7 +32,7 @@ source!
 2. Clone this repository:
 
    ```
-   git clone https://github.com/Saidalo1/SupportBot.git
+   git clone https://github.com/Saidalo1/telegram_support_bot.git
    ```
    
 3. Open project directory: ```cd telegram_support_bot```
