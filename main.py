@@ -12,6 +12,21 @@ bot = Bot(token=TOKEN)
 dp = Dispatcher(bot)
 
 
+@dp.message_handler(commands=['start'])
+async def start(message: types.Message):
+    """
+    Greeting message for users and for
+    the owner!
+
+    :param message:
+    :return:
+    """
+    if message.from_user.id != OWNER:
+        return await message.answer("Welcome to the support bot! You can post questions/suggestions here.")
+    else:
+        return await message.answer("Welcome boss. Enjoy using the bot!")
+
+
 @dp.message_handler(commands=['mute'])
 async def mute(message: types.Message):
     """
@@ -22,23 +37,25 @@ async def mute(message: types.Message):
     :param message:
     :return:
     """
-    # get replied message
-    replied_message = message.reply_to_message.text
+    if message.from_user.id == OWNER:
+        # get replied message
+        replied_message = message.reply_to_message.text
 
-    # get chat id
-    chat_id = int(replied_message[replied_message.index('[') + 1:replied_message.index(']')])
+        # get chat id
+        chat_id = int(replied_message[replied_message.index('[') + 1:replied_message.index(']')])
 
-    # get name of user
-    name_of_user = replied_message.split()[4]
+        # get name of user
+        name_of_user = replied_message.split()[4]
 
-    # check user
-    banned_user = session.query(BannedUsers).filter(BannedUsers.telegram_id == chat_id).count()
-    if not banned_user:
-        chat_id = BannedUsers(telegram_id=chat_id)
-        session.add(chat_id)
-        session.commit()
-        return await message.answer(f"{name_of_user} has been blacklisted")
-    return await message.answer(f"{name_of_user} has already been banned")
+        # check user
+        banned_user = session.query(BannedUsers).filter(BannedUsers.telegram_id == chat_id).count()
+        if not banned_user:
+            chat_id = BannedUsers(telegram_id=chat_id)
+            session.add(chat_id)
+            session.commit()
+            return await message.answer(f"{name_of_user} has been blacklisted")
+        return await message.answer(f"{name_of_user} has already been banned")
+    return await message.answer('You have no right to this!')
 
 
 @dp.message_handler(commands=['unmute'])
@@ -51,24 +68,26 @@ async def unmute(message: types.Message):
     :param message:
     :return:
     """
-    # get replied message
-    replied_message = message.reply_to_message.text
+    if message.from_user.id == OWNER:
+        # get replied message
+        replied_message = message.reply_to_message.text
 
-    # get id who sent replied message
-    chat_id = int(replied_message[replied_message.index('[') + 1:replied_message.index(']')])
+        # get id who sent replied message
+        chat_id = int(replied_message[replied_message.index('[') + 1:replied_message.index(']')])
 
-    # get name of user
-    name_of_user = replied_message.split()[4]
+        # get name of user
+        name_of_user = replied_message.split()[4]
 
-    # check user id
-    chat_id = session.query(BannedUsers).filter(BannedUsers.telegram_id == chat_id)
-    if chat_id.count():
-        # if user id in black list
-        chat_id.delete()
-        session.commit()
-        return await message.answer(f"{name_of_user} removed from blacklist")
-    # if user id is not in black list
-    return await message.answer(f'{name_of_user} is not in blacklist')
+        # check user id
+        chat_id = session.query(BannedUsers).filter(BannedUsers.telegram_id == chat_id)
+        if chat_id.count():
+            # if user id in black list
+            chat_id.delete()
+            session.commit()
+            return await message.answer(f"{name_of_user} removed from blacklist")
+        # if user id is not in black list
+        return await message.answer(f'{name_of_user} is not in blacklist')
+    return await message.answer("You have no right to this!")
 
 
 @dp.message_handler()

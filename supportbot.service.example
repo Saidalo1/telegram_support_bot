@@ -1,0 +1,15 @@
+[Unit]
+Description=Supportbot for Telegram
+After=network.target
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/telegram_support_bot/
+ExecStart=/opt/telegram_support_bot/venv/bin/python -m bot
+KillMode=process
+Restart=always
+RestartSec=10
+EnvironmentFile=/opt/telegram_support_bot/.env
+
+[Install]
+WantedBy=multi-user.target
