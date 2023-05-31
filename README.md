@@ -28,7 +28,7 @@ source!
 
 #### Installation
 
-1. Go to [@BotFather](https://t.me/telegram), create a new bot, and give token.
+1. Go to [@BotFather](https://t.me/telegram), create a new bot, and get token.
 2. Clone this repository:
 
    ```
